@@ -62,6 +62,19 @@ class BitcasaClient(object):
             raise BitcasaException(result['error']['code'], result['error']['message'])
         return BitcasaFolder.folder_from_response(self, name, path, result['result']['items'])
 
+    def get_file(self, path):
+        url = '{0}files/{1}'.format(BASEURL, path)
+        params = {
+            'access_token': self.access_token
+        }
+        response = requests.get(url, params=params)
+        result = json.loads(response.content)
+        if response.status_code != 200:
+            raise BitcasaException(result['error']['code'], result['error']['message'])
+
+        item = result['result']
+        return BitcasaFile(self, item['path'], item['name'], item['extension'], item['size'])
+
     def _delete(self, type, path):
         url = '{0}{1}/'.format(BASEURL, type)
         params = {
